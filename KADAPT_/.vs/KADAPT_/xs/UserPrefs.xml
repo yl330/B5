@@ -1,0 +1,26 @@
+﻿<Properties StartupConfiguration="{47CB1DF7-4BE4-CF5A-67FF-38419F32FD4A}|">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Core/Scripts/Behavior/BehaviorEvent.cs">
+    <Files>
+      <File FileName="Assets/Core/Scripts/Controllers/_NavigatorScript.cs" Line="1" Column="1" />
+      <File FileName="Assets/Core/Scripts/Character/BodyMecanim.cs" />
+      <File FileName="Assets/Core/Scripts/Character/CharacterMecanim.cs" />
+      <File FileName="Assets/Core/Scripts/Character/BehaviorMecanim.cs" Line="126" Column="17" />
+      <File FileName="Assets/Core/Scripts/IK/CrossfadeFBBIKSettings.cs" />
+      <File FileName="Assets/Core/Scripts/IK/IKController.cs" />
+      <File FileName="Assets/MyBehaviorTree.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Sequence.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/BehaviorUpdater.cs" Line="1" Column="1" />
+      <File FileName="Assets/MyBehaviorTree2.cs" Line="45" Column="76" />
+      <File FileName="Assets/IKBT.cs" Line="75" Column="63" />
+      <File FileName="Assets/Core/Scripts/Behavior/BehaviorAgent.cs" Line="1" Column="1" />
+      <File FileName="Assets/Core/Scripts/Behavior/BehaviorEvent.cs" Line="1" Column="1" />
+    </Files>
+  </MonoDevelop.Ide.Workbench>
+  <MonoDevelop.Ide.DebuggingService.PinnedWatches />
+  <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="1274cbb6-f2c5-4d1c-ab50-94824aa08ef2" />
+  <MonoDevelop.Ide.DebuggingService.Breakpoints>
+    <BreakpointStore />
+  </MonoDevelop.Ide.DebuggingService.Breakpoints>
+  <MultiItemStartupConfigurations />
+</Properties>
