@@ -7,9 +7,21 @@ using RootMotion.FinalIK;
 public class IKBT : MonoBehaviour
 {
     public Transform wander1;
-    public Transform wander2;
-    public Transform wander3;
+    public Transform point1;
+    public Transform point2;
+    public Transform point3;
+    public Transform point4;
+    public Transform point5;
+    public Transform point6;
+    public Transform point7;
+    public Transform point8;
+    public Transform point9;
+    public Transform point10;
+    public Transform point11;
+    public Transform point12;
+    public Transform point13;
     public GameObject participant;
+
 
     //IK related interface
     public GameObject ball;
@@ -27,6 +39,7 @@ public class IKBT : MonoBehaviour
         behaviorAgent = new BehaviorAgent(this.BuildTreeRoot());
         BehaviorManager.Instance.Register(behaviorAgent);
         behaviorAgent.StartBehavior();
+    
     }
 
     #region IK related function
@@ -107,24 +120,59 @@ public class IKBT : MonoBehaviour
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
     }
 
+    //protected Node BuildTreeRoot()
+    //{
+    //    Node roaming = new DecoratorLoop(
+    //            new Selector(
+    //                new Sequence(
+    //                    this.ST_ApproachAndWait(this.wander1),
+    //                    new DecoratorLoop(
+    //                        //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
+    //                        new Sequence(
+    //                            participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => ball.transform.position)),
+    //                            this.PickUp(participant), 
+    //                            this.PutDown(participant)
+    //                        )
+    //                    )
+    //                ),
+    //                this.ST_ApproachAndWait(this.wander2)
+    //            )
+    //        );
+    //    return roaming;
+    //}
+
+    public Node doorOpen()
+    {
+        return null;
+    }
+
+    public Node openTheDoor()
+    {
+        return null;
+    }
     protected Node BuildTreeRoot()
     {
-        Node roaming = new DecoratorLoop(
-                new Selector(
-                    new Sequence(
+        Node story = 
+                    new SequenceAll(
                         this.ST_ApproachAndWait(this.wander1),
-                        new DecoratorLoop(
+                        new SequenceShuffle(
                             //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
                             new Sequence(
+                                this.ST_ApproachAndWait(this.point1),
+                                new Selector(
+                                    doorOpen(),openTheDoor()
+                                    )
+                                //EnterRoom()
+                                ),
+
                                 participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => ball.transform.position)),
-                                this.PickUp(participant), 
+                                this.PickUp(participant),
                                 this.PutDown(participant)
                             )
-                        )
-                    ),
-                    this.ST_ApproachAndWait(this.wander2)
-                )
-            );
-        return roaming;
+                            //copy 13 times
+
+                        
+        );
+        return story;
     }
 }

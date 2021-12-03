@@ -32,24 +32,27 @@ public class IKBT2 : MonoBehaviour
         return new Sequence(
                 new Sequence(
                     new LeafInvoke(() => {
-                        var dir = participant.transform.position - participant2.transform.position;
+                        var dir = Vector3.back;
                         dir.Normalize();
-                        var pos = (participant.transform.position + participant2.transform.position) / 2;
-                        pos.y = 1;
-                        shakePoint.transform.position = pos - dir * 0.17f;
-                        shakePoint2.transform.position = pos + dir * 0.17f;
+                        var pos = participant.transform.position;
+                        
+                        pos.y = 5;
+                        shakePoint.transform.position = pos + dir;
+                        shakePoint2.transform.position = pos - dir;
 
-                        shakePoint.transform.rotation = Quaternion.LookRotation(participant2.transform.position + participant2.transform.right * -1f - participant.transform.position, Vector3.up);
-                        shakePoint2.transform.rotation = Quaternion.LookRotation(participant.transform.position + participant.transform.right * -1f - participant2.transform.position, Vector3.up);
+                        //shakePoint.transform.rotation = Quaternion.LookRotation(Vector3.zero, Vector3.left);
+                        //shakePoint2.transform.rotation = Quaternion.LookRotation(Vector3.zero, Vector3.left);
                     }),
                     new SequenceParallel(
+                        //participant.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER",true)
                         participant.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, shakePoint),
-                        participant2.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand2, shakePoint2)
+                        participant.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand2, shakePoint2)
                     ),
                     new LeafWait(1000),
                     new SequenceParallel(
-                        participant.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand),
-                        participant2.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand2)
+                        //participant.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false)
+                       participant.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand),
+                       participant.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand2)
                     )
                 )
             );
