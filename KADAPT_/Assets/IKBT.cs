@@ -6,7 +6,6 @@ using RootMotion.FinalIK;
 
 public class IKBT : MonoBehaviour
 {
-    public Transform wander1;
     public Transform point1;
     public Transform point2;
     public Transform point3;
@@ -22,6 +21,9 @@ public class IKBT : MonoBehaviour
     public Transform point13;
     public Transform point14;
     public GameObject participant;
+    public GameObject participant2;
+    public GameObject participant3;
+    public GameObject participant4;
 
 
     //IK related interface
@@ -121,20 +123,13 @@ public class IKBT : MonoBehaviour
 
     protected Node OpenDoor(GameObject p)
     {
-        //Node open = null;
-        //for (int i = 0; i < ikDoor.Count; i++)
-        //{
-        //    doornum = ikDoor[i];
-        //    open = new Sequence(this.Node_OD(),
-        //            p.GetComponentz<BehaviorMecanim>().Node_StartInteraction(hand, doornum),
-        //            new LeafWait(1000),
-        //            p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
-        //}
+
         return new Sequence(this.Node_OD(),
-                            p.GetComponent<BehaviorMecanim>().Node_HandAnimation("WOODCUT", true)
-                            //new LeafWait(1000),
-                            //p.GetComponent<BehaviorMecanim>().Node_HandAnimation("WOODCUT", true)
-                            ); 
+                            p.GetComponent<BehaviorMecanim>().Node_HandAnimation("WOODCUT", true),
+                            new LeafWait(1000),
+                            p.GetComponent<BehaviorMecanim>().Node_HandAnimation("WOODCUT", false),
+                            new LeafInvoke(() => { return RunStatus.Failure; })
+                            );
 
         //return open;
     }
@@ -170,48 +165,9 @@ public class IKBT : MonoBehaviour
     //});
 //}
 
-    public Node Node_DoorMotion(GameObject p)
-    {
-        Node open = null;
-        //for (int i = 0; i < ikDoor.Count; i++)
-        //{
-            //doornum = p;
-            open = new LeafInvoke(() => {
-                Rigidbody rb = doornum.GetComponent<Rigidbody>();
-                rb.velocity = Vector3.zero;
-                rb.isKinematic = true;
-                doornum.transform.parent = null;
-                p.transform.Rotate(Vector3.down, Space.Self);
-                return RunStatus.Success;
-            });
-        //}
-        return open;
-    }
-
-
-    public Node Door(GameObject p)
-    {
-        Node open = null;
-        for (int i = 0; i < ikDoor.Count; i++)
-        {
-            doornum = ikDoor[i];
-            open = new Sequence(p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, doornum),
-                            new LeafWait(300),
-                            this.Node_DoorMotion(p),
-                            new LeafWait(500), p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
-        }
-        return open;
-    }
-    //{
-    //    return new Sequence(p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, doornum),
-    //        new LeafWait(300),
-    //        this.Node_DoorMotion(),
-    //        new LeafWait(500), p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
-    //}
-
     #endregion
 
-    protected Node ST_ApproachAndWait(Transform target)
+    protected Node ST_ApproachAndWait(Transform target,GameObject participant)
     {
         Val<Vector3> position = Val.V(() => target.position);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
@@ -242,7 +198,7 @@ public class IKBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            Collider[] door = Physics.OverlapSphere(point.position, 5f);
+            Collider[] door = Physics.OverlapSphere(point.position, 1f);
             for (int i = 0; i < door.Length; ++i) {
 
                 if (door[i].tag.Equals("door"))
@@ -255,7 +211,7 @@ public class IKBT : MonoBehaviour
         });
     }
 
-    public Node openTheDoor(Transform point)
+    public Node openTheDoor(Transform point,GameObject participant)
     {
         return new LeafInvoke(() =>
         {
@@ -277,26 +233,119 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         });
     }
+    public Node EnterRoom()
+    {
+        return null;
+    }
     protected Node BuildTreeRoot()
     {
         Node story =
                     new SequenceAll(
-                        //this.ST_ApproachAndWait(this.wander1),
                         new SequenceShuffle(
-                            //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
+
                             new Sequence(
-                                this.ST_ApproachAndWait(this.point1),this.OpenDoor(participant), new LeafWait(1000),
+                                this.ST_ApproachAndWait(this.point1, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
                                 new Selector(
-                                    doorOpen(this.point1), openTheDoor(this.point1)
+                                    doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
+                                new Selector(
+                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + new Vector3(-0.1f,0,0.1f))
+                                    )
+                                ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point2, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
+                                new Selector(
+                                    doorOpen(this.point2), this.OpenDoor(participant), openTheDoor(this.point2, participant)
                                     ),
-                                this.ST_ApproachAndWait(this.point10)
+                                new Selector(
+                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + 1/10*Vector3.right)
+                                    )
+                                ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point3, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
+                                new Selector(
+                                    doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)
+                                    ),
+                                new Selector(
+                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + 1/10*Vector3.right)
+                                    )
                                 )
-
                             )
-        //copy 13 times
+//new SequenceShuffle(
+//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point1, participant2), this.OpenDoor(participant2), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point1), openTheDoor(this.point1, participant2)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant2)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point2, participant2), this.OpenDoor(participant2), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point2), openTheDoor(this.point2, participant2)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant2)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point3, participant2), this.OpenDoor(participant2), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point3), openTheDoor(this.point3, participant2)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant2)
+//        )
 
+//    ),
+//new SequenceShuffle(
+//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point1, participant3), this.OpenDoor(participant3), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point1), openTheDoor(this.point1,participant3)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant3)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point2, participant3), this.OpenDoor(participant3), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point2), openTheDoor(this.point2,participant3)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant3)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point3, participant3), this.OpenDoor(participant3), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point3), openTheDoor(this.point3,participant3)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant3)
+//        )
 
-        );
+//    ),
+//new SequenceShuffle(
+//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point1, participant4), this.OpenDoor(participant4), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point1), openTheDoor(this.point1, participant4)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant4)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point2, participant4), this.OpenDoor(participant4), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point2), openTheDoor(this.point2, participant4)
+//            ),
+//        this.ST_ApproachAndWait(this.point10, participant4)
+//        ),
+//    new Sequence(
+//        this.ST_ApproachAndWait(this.point3,participant4), this.OpenDoor(participant4), new LeafWait(1000),
+//        new Selector(
+//            doorOpen(this.point3), openTheDoor(this.point3, participant4)
+//            ),
+//        this.ST_ApproachAndWait(this.point10,participant4)
+//        )
+//    )
+
+) ;
         return story;
     }
 

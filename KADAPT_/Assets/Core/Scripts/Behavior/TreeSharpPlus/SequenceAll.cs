@@ -1,35 +1,17 @@
-﻿#region License
-
-// A simplistic Behavior Tree implementation in C#
-// Copyright (C) 2010-2011 ApocDev apocdev@gmail.com
-// 
-// This file is part of TreeSharp
-// 
-// This program is free software: you can redistribute it and/or modify
-// it under the terms of the GNU Lesser General Public License as published by
-// the Free Software Foundation, either version 3 of the License, or
-// (at your option) any later version.
-// 
-// This program is distributed in the hope that it will be useful,
-// but WITHOUT ANY WARRANTY; without even the implied warranty of
-// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-// GNU General Public License for more details.
-// 
-// You should have received a copy of the GNU General Public License
-// along with this program.  If not, see <http://www.gnu.org/licenses/>.
-
-#endregion
-
+﻿using System;
 using System.Collections.Generic;
+using UnityEngine;
+using System.Collections;
 
 namespace TreeSharpPlus
 {
     /// <summary>
-    ///   The base sequence class. This will execute each branch of logic, in order.
-    ///   If all branches succeed, this composite will return a successful run status.
-    ///   If any branch fails, this composite will return a failed run status.
+    ///    Parallel Sequence nodes execute all of their children in parallel. If any
+    ///    sequence reports failure, we finish all of the other ticks, but then stop
+    ///    all other children and report failure. We report success when all children
+    ///    report success.
     /// </summary>
-    public class SequenceAll : NodeGroup
+    public class SequenceAll : Parallel
     {
         public SequenceAll(params Node[] children)
             : base(children)
@@ -38,27 +20,37 @@ namespace TreeSharpPlus
 
         public override IEnumerable<RunStatus> Execute()
         {
-            foreach (Node node in this.Children)
+            while (true)
             {
-                // Move to the next node
-                this.Selection = node;
-                node.Start();
+                for (int i = 0; i < this.Children.Count; i++)
+                {
+                    if (this.childStatus[i] == RunStatus.Running)
+                    {
+                        Node node = this.Children[i];
+                        RunStatus tickResult = this.TickNode(node);
 
-                // If the current node is still running, report that. Don't 'break' the enumerator
-                RunStatus result;
-                while ((result = this.TickNode(node)) == RunStatus.Running)
-                    yield return RunStatus.Running;
+                        // Check to see if anything finished
+                        if (tickResult != RunStatus.Running)
+                        {
+                            // Clean up the node
+                            node.Stop();
+                            this.childStatus[i] = tickResult;
+                            this.runningChildren--;
 
-                // Call Stop to allow the node to clean anything up.
-                node.Stop();
+                        }
+                    }
+                }
 
-                // Clear the selection
-                this.Selection.ClearLastStatus();
-                this.Selection = null;
+                // If we're out of running nodes, we're done
+                if (this.runningChildren == 0)
+                {
+                    yield return RunStatus.Success;
+                    yield break;
+                }
+
+                // For forked ticking
                 yield return RunStatus.Running;
             }
-            yield return RunStatus.Success;
-            yield break;
         }
     }
 }
