@@ -279,10 +279,12 @@ public class IKBT : MonoBehaviour
                 {
                     print("pick");
                     price = prices[i].GetComponent<Rigidbody>();
-                    ST_Approach(price.transform.position,participant).Start();
+                    //ST_Approach(price.transform.position,participant).Start();
+                    BehaviorAgent behaviorAgent2 = new BehaviorAgent(new Sequence(ST_Approach(price.transform.position, participant), PickUp(participant, prices[i].GetComponent<InteractionObject>())));
+                    BehaviorManager.Instance.Register(behaviorAgent2);
+                    behaviorAgent2.StartBehavior();
 
-                    ST_Approach(price.transform.position, participant).Start();
-                    PickUp(participant,prices[i].GetComponent<InteractionObject>()).Execute();
+                    //PickUp(participant,prices[i].GetComponent<InteractionObject>()).Start();
                     prices[i].enabled = false;
                     count[participant]= (int)count[participant]+1;
                 }
