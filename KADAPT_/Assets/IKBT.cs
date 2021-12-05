@@ -24,6 +24,7 @@ public class IKBT : MonoBehaviour
     public GameObject participant2;
     public GameObject participant3;
     public GameObject participant4;
+    public Hashtable count;
 
 
     //IK related interface
@@ -44,18 +45,22 @@ public class IKBT : MonoBehaviour
     // Use this for initialization
     void Start()
     {
+        count = new Hashtable();
+        count.Add(participant, 0);
+        count.Add(participant2, 0);
+        count.Add(participant3, 0);
         behaviorAgent = new BehaviorAgent(this.BuildTreeRoot());
         BehaviorManager.Instance.Register(behaviorAgent);
         behaviorAgent.StartBehavior();
-    
+        
     }
 
     #region IK related function
 
-    protected Node PickUp(GameObject p)
+    protected Node PickUp(GameObject p,InteractionObject ikobj)
     {
         return new Sequence(this.Node_BallStop(),
-                            p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikBall),
+                            p.GetComponent<BehaviorMecanim>().Node_StartInteraction(hand, ikobj),
                             new LeafWait(1000),
                             p.GetComponent<BehaviorMecanim>().Node_StopInteraction(hand));
     }
@@ -170,6 +175,14 @@ public class IKBT : MonoBehaviour
     protected Node ST_ApproachAndWait(Transform target,GameObject participant)
     {
         Val<Vector3> position = Val.V(() => target.position);
+        print(target.position.x + " " + target.position.y+target.position.z);
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
+    }
+
+    protected Node ST_Approach(Vector3 target, GameObject participant)
+    {
+        Val<Vector3> position = Val.V(() => target);
+        print(target.x + " " + target.y + " "+target.z);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
     }
 
@@ -198,15 +211,15 @@ public class IKBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            Collider[] door = Physics.OverlapSphere(point.position, 1f);
+            Collider[] door = Physics.OverlapSphere(point.position, 3f);
             for (int i = 0; i < door.Length; ++i) {
 
                 if (door[i].tag.Equals("door"))
                 {
-                    print("detected" + door[0]);
+                    //print("detected" + door[0]);
                     return RunStatus.Failure; }
             }
-            print("not detected" + door[0]);
+            //print("not detected" + door[0]);
             return RunStatus.Success;
         });
     }
@@ -216,7 +229,7 @@ public class IKBT : MonoBehaviour
         return new LeafInvoke(() =>
         {
             Rigidbody door;
-            Collider[] doors = Physics.OverlapSphere(point.position, 5f);
+            Collider[] doors = Physics.OverlapSphere(point.position, 3f);
             for (int i = 0; i < doors.Length; ++i)
             {
 
@@ -233,42 +246,79 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         });
     }
-    public Node EnterRoom()
+
+    public Node havePrice(Transform point)
     {
-        return null;
+        return new LeafInvoke(() =>
+        {
+            Collider[] price = Physics.OverlapSphere(point.position, 10f);
+            for (int i = 0; i < price.Length; ++i)
+            {
+
+                if (price[i].tag.Equals("price"))
+                {
+                    print("detected");
+                    return RunStatus.Failure;
+                }
+            }
+            print("not detected");
+            return RunStatus.Success;
+        });
+    }
+
+    public Node PickUpPrice(Transform point, GameObject participant)
+    {
+        return new LeafInvoke(() =>
+        {
+            Rigidbody price;
+            Collider[] prices = Physics.OverlapSphere(point.position, 10f);
+            for (int i = 0; i < prices.Length; ++i)
+            {
+
+                if (prices[i].tag.Equals("price"))
+                {
+                    print("pick");
+                    price = prices[i].GetComponent<Rigidbody>();
+                    ST_Approach(price.transform.position,participant).Start();
+
+                    ST_Approach(price.transform.position, participant).Start();
+                    PickUp(participant,prices[i].GetComponent<InteractionObject>()).Execute();
+                    prices[i].enabled = false;
+                    count[participant]= (int)count[participant]+1;
+                }
+            }
+            return RunStatus.Success;
+        });
     }
     protected Node BuildTreeRoot()
     {
         Node story =
                     new SequenceAll(
+                        //ST_Approach(new Vector3(21.7f, 0.15f, 22.612f), participant),
                         new SequenceShuffle(
-
+                            
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point1, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
-                                new Selector(
-                                    doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
-                                new Selector(
-                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + new Vector3(-0.1f,0,0.1f))
-                                    )
-                                ),
+                                new Selector(doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
+                                    ST_Approach(new Vector3(40f, 0f, 37f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
+                                    ),
+
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point2, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
                                 new Selector(
-                                    doorOpen(this.point2), this.OpenDoor(participant), openTheDoor(this.point2, participant)
-                                    ),
-                                new Selector(
-                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + 1/10*Vector3.right)
-                                    )
+                                    doorOpen(this.point2), this.OpenDoor(participant), openTheDoor(this.point2, participant)),
+                                    ST_Approach(new Vector3(20f, 0f, 10f), participant),
+                                    new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
                                 ),
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point3, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
-                                new Selector(
-                                    doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)
-                                    ),
-                                new Selector(
-                                    participant.GetComponent<BehaviorMecanim>().Node_GoTo(participant.transform.position + 1/10*Vector3.right)
-                                    )
-                                )
+                                new Selector(doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)),
+                                ST_Approach(new Vector3(20f, 0f, 25f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
+                                    
+                            )
+                            
                             )
 //new SequenceShuffle(
 //    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
