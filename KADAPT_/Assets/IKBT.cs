@@ -4,6 +4,7 @@ using UnityEngine;
 using TreeSharpPlus;
 using RootMotion.FinalIK;
 using System;
+using UnityEngine.UI;
 
 public class IKBT : MonoBehaviour
 {
@@ -43,6 +44,12 @@ public class IKBT : MonoBehaviour
     public List<InteractionObject> ikDoor = new List<InteractionObject>();
     InteractionObject doornum;
     bool isOpen = false;
+
+    public Text countTextP1;
+    public Text countTextP2;
+    public Text countTextP3;
+
+
     // Use this for initialization
     void Start()
     {
@@ -53,7 +60,9 @@ public class IKBT : MonoBehaviour
         behaviorAgent = new BehaviorAgent(this.BuildTreeRoot());
         BehaviorManager.Instance.Register(behaviorAgent);
         behaviorAgent.StartBehavior();
-        
+
+        SetCountText(count[participant], count[participant2], count[participant3]);
+
     }
 
     #region IK related function
@@ -284,6 +293,7 @@ public class IKBT : MonoBehaviour
                     PickUp(participant, prices[i].GetComponent<InteractionObject>());
                     prices[i].enabled = false;
                     count[participant] = (int)count[participant] + 1;
+                    SetCountText(count[participant], count[participant2], count[participant3]);
                     print(count[participant]);
                 }
                 
@@ -418,9 +428,18 @@ public class IKBT : MonoBehaviour
     //                    )
     //                ),
     //         this.ST_ApproachAndWait(this.point7)
-            
+
     //                )
     //        ;
     //    return roaming;
     //}
+
+
+    public void SetCountText(object count1, object count2, object count3)
+    {
+        countTextP1.text = "P1 Score: " + count1.ToString();
+        countTextP2.text = "P1 Score: " + count2.ToString();
+        countTextP3.text = "P1 Score: " + count3.ToString();
+
+    }
 }
