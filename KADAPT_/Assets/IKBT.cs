@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using TreeSharpPlus;
 using RootMotion.FinalIK;
+using System;
 
 public class IKBT : MonoBehaviour
 {
@@ -279,13 +280,13 @@ public class IKBT : MonoBehaviour
                 {
                     print("pick");
                     price = prices[i].GetComponent<Rigidbody>();
-                    ST_Approach(price.transform.position,participant).Start();
-
-                    ST_Approach(price.transform.position, participant).Start();
-                    PickUp(participant,prices[i].GetComponent<InteractionObject>()).Execute();
+                    ST_Approach(price.transform.position, participant);
+                    PickUp(participant, prices[i].GetComponent<InteractionObject>());
                     prices[i].enabled = false;
-                    count[participant]= (int)count[participant]+1;
+                    count[participant] = (int)count[participant] + 1;
+                    print(count[participant]);
                 }
+                
             }
             return RunStatus.Success;
         });
