@@ -27,7 +27,7 @@ public class IKBT : MonoBehaviour
     public GameObject participant3;
     public GameObject participant4;
     public Hashtable count;
-  //  private Vector3 11;
+    private Vector3 v1= new Vector3();
 
     //IK related interface
     public GameObject ball;
@@ -188,10 +188,16 @@ public class IKBT : MonoBehaviour
         print(target.position.x + " " + target.position.y+target.position.z);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
     }
-
+    protected Node ST(GameObject participant)
+    {
+        Val<Vector3> position = Val.V(() => v1);
+        return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
+    }
     protected Node ST_Approach(Vector3 target, GameObject participant)
     {
+        print("iiiiiiiiiiiiiiiiiiiiii");
         Val<Vector3> position = Val.V(() => target);
+       
         print(target.x + " " + target.y + " "+target.z);
         return new Sequence(participant.GetComponent<BehaviorMecanim>().Node_GoTo(position), new LeafWait(1000));
     }
@@ -233,7 +239,7 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         });
     }
-
+    
     public Node openTheDoor(Transform point,GameObject participant)
     {
         return new LeafInvoke(() =>
@@ -275,7 +281,26 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         });
     }
+    public Node disappear(GameObject participant)
+    {
+        return new LeafInvoke(() =>
+        {
+            Rigidbody price;
+            Collider[] prices = Physics.OverlapSphere(participant.transform.position, 10f);
+            for (int i = 0; i < prices.Length; ++i)
+            {
 
+                if (prices[i].tag.Equals("price"))
+                {
+                    price = prices[i].GetComponent<Rigidbody>();
+                    prices[i].enabled = false;
+
+                }
+
+            }
+            return RunStatus.Success;
+        });
+    }
     public Node PickUpPrice(Transform point, GameObject participant)
     {
         return new LeafInvoke(() =>
@@ -289,16 +314,19 @@ public class IKBT : MonoBehaviour
                 {
                     print("pick");
                     price = prices[i].GetComponent<Rigidbody>();
-                    ST_Approach(price.transform.position, participant);
-                    PickUp(participant, prices[i].GetComponent<InteractionObject>());
-                    prices[i].enabled = false;
+                    v1 = price.transform.position;
+                    print(v1);
+                    ST_Approach(price.transform.position, participant).Start();
+                    PickUp(participant, prices[i].GetComponent<InteractionObject>()).Start();
+                    //prices[i].enabled = false;
+                    //curp1 = prices[i];
                     count[participant] = (int)count[participant] + 1;
                     SetCountText(count[participant], count[participant2], count[participant3]);
                     print(count[participant]);
                 }
                 
             }
-            return RunStatus.Success;
+            return RunStatus.Failure;
         });
     }
     protected Node BuildTreeRoot()
@@ -313,7 +341,8 @@ public class IKBT : MonoBehaviour
                                 this.ST_ApproachAndWait(this.point1, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
                                 new Selector(doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
                                     ST_Approach(new Vector3(40f, 0f, 37f), participant),
-                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant),new Sequence(ST(participant), disappear(participant)))
+                                //ST( participant),disappear(participant)
                                     ),
 
                             new Sequence(
@@ -321,15 +350,17 @@ public class IKBT : MonoBehaviour
                                 new Selector(
                                     doorOpen(this.point2), this.OpenDoor(participant), openTheDoor(this.point2, participant)),
                                     ST_Approach(new Vector3(20f, 0f, 10f), participant),
-                                    new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
+                                    new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                                     //ST(participant), disappear(participant)
                                 ),
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point3, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
                                 new Selector(doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)),
                                 ST_Approach(new Vector3(20f, 0f, 25f), participant),
-                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                                 //ST(participant), disappear(participant)
                             )
-                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant)
+                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant), new DecoratorLoop(new LeafWait(1000))
                         )
 //new SequenceShuffle(
 //    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
