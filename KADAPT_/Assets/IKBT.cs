@@ -27,7 +27,7 @@ public class IKBT : MonoBehaviour
     public GameObject participant3;
     public GameObject participant4;
     public Hashtable count;
-
+  //  private Vector3 11;
 
     //IK related interface
     public GameObject ball;
@@ -306,8 +306,9 @@ public class IKBT : MonoBehaviour
         Node story =
                     new SequenceAll(
                         //ST_Approach(new Vector3(21.7f, 0.15f, 22.612f), participant),
+                        new Sequence(
                         new SequenceShuffle(
-                            
+
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point1, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
                                 new Selector(doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
@@ -327,10 +328,9 @@ public class IKBT : MonoBehaviour
                                 new Selector(doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)),
                                 ST_Approach(new Vector3(20f, 0f, 25f), participant),
                                 new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant))
-                                    
                             )
-                            
-                            )
+                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant)
+                        )
 //new SequenceShuffle(
 //    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
 //    new Sequence(
