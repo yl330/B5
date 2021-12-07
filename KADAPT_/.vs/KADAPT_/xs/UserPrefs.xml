@@ -1,26 +1,25 @@
 ﻿<Properties StartupConfiguration="{47CB1DF7-4BE4-CF5A-67FF-38419F32FD4A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Core/Scripts/IK/IKController.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/IKBT.cs">
     <Files>
-      <File FileName="Assets/IKBT.cs" Line="285" Column="86" IsPinned="True" />
+      <File FileName="Assets/IKBT.cs" Line="505" Column="1" IsPinned="True" />
       <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SelectorShuffle.cs" />
       <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/NodeGroupWeighted.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/ForEach.cs" Line="1" Column="1" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceAll.cs" Line="12" Column="27" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/Node.cs" Line="146" Column="53" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/ForEach.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceAll.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/Node.cs" />
       <File FileName="Assets/Core/Scripts/Behavior/BehaviorUpdater.cs" />
-      <File FileName="Assets/Scripts/IKBT2.cs" Line="1" Column="1" />
+      <File FileName="Assets/Scripts/IKBT2.cs" />
       <File FileName="Assets/Core/Scripts/Character/CharacterMecanim.cs" />
-      <File FileName="Assets/Core/Scripts/Character/BehaviorMecanim.cs" Line="39" Column="17" />
+      <File FileName="Assets/Core/Scripts/Character/BehaviorMecanim.cs" />
       <File FileName="Assets/Core/Scripts/Character/BodyMecanim.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceParallel.cs" Line="94" Column="2" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Sequence.cs" Line="34" Column="16" />
-      <File FileName="Assets/MyBehaviorTree2.cs" Line="33" Column="3" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceParallel.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Sequence.cs" />
+      <File FileName="Assets/MyBehaviorTree2.cs" />
       <File FileName="Assets/Core/Scripts/IK/IKController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
-  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="1274cbb6-f2c5-4d1c-ab50-94824aa08ef2" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>
