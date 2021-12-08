@@ -374,6 +374,17 @@ public class IKBT : MonoBehaviour
             return RunStatus.Success;
         });
     }
+    public Node userInteract()
+    {
+        return new LeafInvoke(() =>
+        {
+            if (Input.GetKey("q"))
+            {
+                return RunStatus.Failure;
+            }
+            return RunStatus.Success;
+        });
+    }
 
     private Node Cheer(GameObject winner)
     {
@@ -411,6 +422,7 @@ public class IKBT : MonoBehaviour
         Node story =
                     new SequenceAll(
                         //ST_Approach(new Vector3(21.7f, 0.15f, 22.612f), participant),
+                        new SequenceParallel(
                         new Sequence(
                         new SequenceShuffle(
 
@@ -438,6 +450,7 @@ public class IKBT : MonoBehaviour
                             //ST(participant), disappear(participant)
                             )
                             ), ST_Approach(new Vector3(39f, 0f, -12f), participant), this.WinnerCheck(), this.Cheer(winner), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; })
+                            ),  new DecoratorLoop(new Selector(this.userInteract(),Cheer(participant)))
                         )
 //new SequenceShuffle(
 //    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
