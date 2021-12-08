@@ -417,6 +417,14 @@ public class IKBT : MonoBehaviour
             new LeafInvoke(() => { return RunStatus.Success; })
          );
     }
+    public Node Faster(GameObject g)
+    {
+        return new LeafInvoke(() =>
+        {
+            g.GetComponent<UnitySteeringController>().maxSpeed = 6f;
+            return RunStatus.Success;
+        });
+    }
     protected Node BuildTreeRoot()
     {
         Node story =
@@ -450,7 +458,7 @@ public class IKBT : MonoBehaviour
                             //ST(participant), disappear(participant)
                             )
                             ), ST_Approach(new Vector3(39f, 0f, -12f), participant), this.WinnerCheck(), this.Cheer(winner), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; })
-                            ),  new DecoratorLoop(new Selector(this.userInteract(),Cheer(participant)))
+                            ),  new DecoratorLoop(new Selector(this.userInteract(),Faster(participant)))
                         )
 //new SequenceShuffle(
 //    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
