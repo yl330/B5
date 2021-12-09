@@ -12,7 +12,7 @@ public class IKBT : MonoBehaviour
     public Transform point2;
     public Transform point3;
     public Transform point4;
-    public Transform point5;
+    //public Transform point5;
     public Transform point6;
     public Transform point7;
     public Transform point8;
@@ -50,6 +50,7 @@ public class IKBT : MonoBehaviour
     public Text countTextP3;
     public Text winText;
     public GameObject winner;
+    public GameObject winner2;
     private int count1, count2, count3 = 0;
 
 
@@ -273,7 +274,7 @@ public class IKBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            Collider[] price = Physics.OverlapSphere(point.position, 10f);
+            Collider[] price = Physics.OverlapSphere(point.position, 4f);
             for (int i = 0; i < price.Length; ++i)
             {
 
@@ -292,7 +293,7 @@ public class IKBT : MonoBehaviour
         return new LeafInvoke(() =>
         {
             Rigidbody price;
-            Collider[] prices = Physics.OverlapSphere(participant.transform.position, 10f);
+            Collider[] prices = Physics.OverlapSphere(participant.transform.position, 4f);
             for (int i = 0; i < prices.Length; ++i)
             {
 
@@ -312,7 +313,7 @@ public class IKBT : MonoBehaviour
         return new LeafInvoke(() =>
         {
             Rigidbody price;
-            Collider[] prices = Physics.OverlapSphere(point.position, 10f);
+            Collider[] prices = Physics.OverlapSphere(point.position, 4f);
             for (int i = 0; i < prices.Length; ++i)
             {
 
@@ -360,16 +361,74 @@ public class IKBT : MonoBehaviour
             {
                 winText.text = "Daniel1 won!";
                 winner = participant;
+                Cheer(winner);
             }
             if (score2 > score1 && score2 > score3)
             {
                 winText.text = "Daniel2 won!";
                 winner = participant2;
+                Cheer(winner);
             }
             if (score3 > score1 && score3 > score2)
             {
                 winText.text = "Daniel3 won!";
                 winner = participant3;
+                Cheer(winner);
+            }
+            if (score1 == score2)
+            {
+                winText.text = "Daniel1 and Daniel2 won!";
+                winner = participant;
+                winner2 = participant2;
+                Cheer2(winner, winner2);
+
+            }
+            if (score1 == score3)
+            {
+                winText.text = "Daniel1 and Daniel3 won!";
+                winner = participant;
+                winner2 = participant2;
+                Cheer2(winner, winner2);
+            }
+            if (score2 == score3)
+            {
+                winText.text = "Daniel2 and Daniel3 won!";
+                winner = participant;
+                winner2 = participant2;
+                Cheer2(winner, winner2);
+            }
+            return RunStatus.Success;
+        });
+    }
+    public Node userInteract()
+    {
+        return new LeafInvoke(() =>
+        {
+            if (Input.GetKey("1"))
+            {
+                return RunStatus.Failure;
+            }
+            return RunStatus.Success;
+        });
+    }
+    public Node userInteract2()
+    {
+        return new LeafInvoke(() =>
+        {
+            if (Input.GetKey("2"))
+            {
+                return RunStatus.Failure;
+            }
+            return RunStatus.Success;
+        });
+    }
+    public Node userInteract3()
+    {
+        return new LeafInvoke(() =>
+        {
+            if (Input.GetKey("3"))
+            {
+                return RunStatus.Failure;
             }
             return RunStatus.Success;
         });
@@ -378,48 +437,49 @@ public class IKBT : MonoBehaviour
     private Node Cheer(GameObject winner)
     {
         return new Sequence(
-            //new LeafInvoke(() => {
-            //    int score1 = count1;
-            //    int score2 = count2;
-            //    int score3 = count3;
 
-            //    if (score1 > score2 && score1 > score3)
-            //    {
-            //        winText.text = "Daniel1 won!";
-            //        winner = participant;
-            //    }
-            //    if (score2 > score1 && score2 > score3)
-            //    {
-            //        winText.text = "Daniel2 won!";
-            //        winner = participant2;
-            //    }
-            //    if (score3 > score1 && score3 > score2)
-            //    {
-            //        winText.text = "Daniel3 won!";
-            //        winner = participant3;
-            //    }
-            //}),
-            //this.WinnerCheck(),
             winner.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
-            new LeafWait(1000),
+            new LeafWait(10000),
             winner.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
             new LeafInvoke(() => { return RunStatus.Success; })
          );
     }
+
+    private Node Cheer2(GameObject winner1, GameObject winner2)
+    {
+        
+        return new Sequence(
+            winner1.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
+            winner2.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
+            new LeafWait(10000),
+            winner1.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
+            winner2.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
+            new LeafInvoke(() => { return RunStatus.Success; })
+         );
+    }
+
+    public Node Faster(GameObject g)
+    {
+        return new LeafInvoke(() =>
+        {
+            g.GetComponent<UnitySteeringController>().maxSpeed = 6f;
+            return RunStatus.Success;
+        });
+    }
     protected Node BuildTreeRoot()
     {
-        Node story =
+        Node story = new Sequence(
                     new SequenceAll(
                         //ST_Approach(new Vector3(21.7f, 0.15f, 22.612f), participant),
+                        new SequenceParallel(
                         new Sequence(
                         new SequenceShuffle(
 
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point1, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
                                 new Selector(doorOpen(this.point1), this.OpenDoor(participant), openTheDoor(this.point1, participant)),
-                                    ST_Approach(new Vector3(40f, 0f, 37f), participant),
+                                    ST_Approach(new Vector3(40f, 0f, 33f), participant),
                                 new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
-                                    //ST( participant),disappear(participant)
                                     ),
 
                             new Sequence(
@@ -428,96 +488,334 @@ public class IKBT : MonoBehaviour
                                     doorOpen(this.point2), this.OpenDoor(participant), openTheDoor(this.point2, participant)),
                                     ST_Approach(new Vector3(20f, 0f, 10f), participant),
                                     new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
-                                //ST(participant), disappear(participant)
                                 ),
                             new Sequence(
                                 this.ST_ApproachAndWait(this.point3, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
                                 new Selector(doorOpen(this.point3), this.OpenDoor(participant), openTheDoor(this.point3, participant)),
                                 ST_Approach(new Vector3(20f, 0f, 25f), participant),
                                 new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
-                            //ST(participant), disappear(participant)
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point4, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.right)),
+                                new Selector(doorOpen(this.point4), this.OpenDoor(participant), openTheDoor(this.point4, participant)),
+                                ST_Approach(new Vector3(22f, 0f, 39f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            //new Sequence(
+                            //    this.ST_ApproachAndWait(this.point5, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                            //    new Selector(doorOpen(this.point5), this.OpenDoor(participant), openTheDoor(this.point5, participant)),
+                            //    ST_Approach(new Vector3(0f, 0f, 14.3f), participant),
+                            //    new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            //),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point6, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point6), this.OpenDoor(participant), openTheDoor(this.point6, participant)),
+                                ST_Approach(new Vector3(1f, 0f, 23f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point7, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point7), this.OpenDoor(participant), openTheDoor(this.point7, participant)),
+                                ST_Approach(new Vector3(0.21f, 0f, 32f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point8, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point8), this.OpenDoor(participant), openTheDoor(this.point8, participant)),
+                                ST_Approach(new Vector3(2f, 0f, 40f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point9, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.forward)),
+                                new Selector(doorOpen(this.point9), this.OpenDoor(participant), openTheDoor(this.point9, participant)),
+                                ST_Approach(new Vector3(11f, 0f, 46f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point10, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point10), this.OpenDoor(participant), openTheDoor(this.point10, participant)),
+                                ST_Approach(new Vector3(-23f, 0f, 12f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point11, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point11), this.OpenDoor(participant), openTheDoor(this.point11, participant)),
+                                ST_Approach(new Vector3(-23f, 0f, 22f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point12, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point12), this.OpenDoor(participant), openTheDoor(this.point12, participant)),
+                                ST_Approach(new Vector3(-23f, 0f, 41f), participant),
+                                new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
                             )
-                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant), this.WinnerCheck(), this.Cheer(winner), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; })
+                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant)
+                            ), new DecoratorLoop(new Selector(this.userInteract(), Faster(participant)))
+                        ),
+new SequenceParallel(
+                        new Sequence(
+                        new SequenceShuffle(
+
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point1, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.forward)),
+                                new Selector(doorOpen(this.point1), this.OpenDoor(participant2), openTheDoor(this.point1, participant2)),
+                                    ST_Approach(new Vector3(40f, 0f, 33f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                                    ),
+
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point2, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.right)),
+                                new Selector(
+                                    doorOpen(this.point2), this.OpenDoor(participant2), openTheDoor(this.point2, participant2)),
+                                    ST_Approach(new Vector3(20f, 0f, 10f), participant2),
+                                    new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                                ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point3, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.right)),
+                                new Selector(doorOpen(this.point3), this.OpenDoor(participant2), openTheDoor(this.point3, participant2)),
+                                ST_Approach(new Vector3(20f, 0f, 25f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point4, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.right)),
+                                new Selector(doorOpen(this.point4), this.OpenDoor(participant2), openTheDoor(this.point4, participant2)),
+                                ST_Approach(new Vector3(22f, 0f, 39f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            //new Sequence(
+                            //    this.ST_ApproachAndWait(this.point5, participant), participant.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant.transform.position + Vector3.left)),
+                            //    new Selector(doorOpen(this.point5), this.OpenDoor(participant), openTheDoor(this.point5, participant)),
+                            //    ST_Approach(new Vector3(0f, 0f, 14.3f), participant),
+                            //    new Selector(havePrice(participant.transform), PickUpPrice(participant.transform, participant), new Sequence(ST(participant), disappear(participant)))
+                            //),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point6, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point6), this.OpenDoor(participant2), openTheDoor(this.point6, participant2)),
+                                ST_Approach(new Vector3(1f, 0f, 23f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point7, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point7), this.OpenDoor(participant2), openTheDoor(this.point7, participant2)),
+                                ST_Approach(new Vector3(0.21f, 0f, 32f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point8, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point8), this.OpenDoor(participant2), openTheDoor(this.point8, participant2)),
+                                ST_Approach(new Vector3(2f, 0f, 40f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point9, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.forward)),
+                                new Selector(doorOpen(this.point9), this.OpenDoor(participant2), openTheDoor(this.point9, participant2)),
+                                ST_Approach(new Vector3(11f, 0f, 46f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point10, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point10), this.OpenDoor(participant2), openTheDoor(this.point10, participant2)),
+                                ST_Approach(new Vector3(-23f, 0f, 12f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point11, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point11), this.OpenDoor(participant2), openTheDoor(this.point11, participant2)),
+                                ST_Approach(new Vector3(-23f, 0f, 22f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point12, participant2), participant2.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant2.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point12), this.OpenDoor(participant2), openTheDoor(this.point12, participant2)),
+                                ST_Approach(new Vector3(-23f, 0f, 41f), participant2),
+                                new Selector(havePrice(participant2.transform), PickUpPrice(participant2.transform, participant2), new Sequence(ST(participant2), disappear(participant2)))
+                            )
+                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant2)
+                            ), new DecoratorLoop(new Selector(this.userInteract2(), Faster(participant2)))
+                        ),
+new SequenceParallel(
+                        new Sequence(
+                        new SequenceShuffle(
+
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point1, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.forward)),
+                                new Selector(doorOpen(this.point1), this.OpenDoor(participant3), openTheDoor(this.point1, participant3)),
+                                    ST_Approach(new Vector3(40f, 0f, 33f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                                    ),
+
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point2, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.right)),
+                                new Selector(
+                                    doorOpen(this.point2), this.OpenDoor(participant3), openTheDoor(this.point2, participant3)),
+                                    ST_Approach(new Vector3(20f, 0f, 10f), participant3),
+                                    new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                                ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point3, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.right)),
+                                new Selector(doorOpen(this.point3), this.OpenDoor(participant3), openTheDoor(this.point3, participant3)),
+                                ST_Approach(new Vector3(20f, 0f, 25f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point4, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.right)),
+                                new Selector(doorOpen(this.point4), this.OpenDoor(participant3), openTheDoor(this.point4, participant3)),
+                                ST_Approach(new Vector3(22f, 0f, 39f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            //new Sequence(
+                            //    this.ST_ApproachAndWait(this.point5, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                            //    new Selector(doorOpen(this.point5), this.OpenDoor(participant3), openTheDoor(this.point5, participant3)),
+                            //    ST_Approach(new Vector3(0f, 0f, 14.3f), participant3),
+                            //    new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            //),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point6, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point6), this.OpenDoor(participant3), openTheDoor(this.point6, participant3)),
+                                ST_Approach(new Vector3(1f, 0f, 23f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point7, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point7), this.OpenDoor(participant3), openTheDoor(this.point7, participant3)),
+                                ST_Approach(new Vector3(0.21f, 0f, 32f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point8, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point8), this.OpenDoor(participant3), openTheDoor(this.point8, participant3)),
+                                ST_Approach(new Vector3(2f, 0f, 40f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point9, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.forward)),
+                                new Selector(doorOpen(this.point9), this.OpenDoor(participant3), openTheDoor(this.point9, participant3)),
+                                ST_Approach(new Vector3(11f, 0f, 46f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point10, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point10), this.OpenDoor(participant3), openTheDoor(this.point10, participant3)),
+                                ST_Approach(new Vector3(-23f, 0f, 12f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point11, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point11), this.OpenDoor(participant3), openTheDoor(this.point11, participant3)),
+                                ST_Approach(new Vector3(-23f, 0f, 22f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            ),
+                            new Sequence(
+                                this.ST_ApproachAndWait(this.point12, participant3), participant3.GetComponent<BehaviorMecanim>().ST_TurnToFace(Val.V(() => participant3.transform.position + Vector3.left)),
+                                new Selector(doorOpen(this.point12), this.OpenDoor(participant3), openTheDoor(this.point12, participant3)),
+                                ST_Approach(new Vector3(-23f, 0f, 41f), participant3),
+                                new Selector(havePrice(participant3.transform), PickUpPrice(participant3.transform, participant3), new Sequence(ST(participant3), disappear(participant3)))
+                            )
+                            ), ST_Approach(new Vector3(39f, 0f, -12f), participant3)
+                            ), new DecoratorLoop(new Selector(this.userInteract3(), Faster(participant3)))
                         )
-//new SequenceShuffle(
-//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point1, participant2), this.OpenDoor(participant2), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point1), openTheDoor(this.point1, participant2)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant2)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point2, participant2), this.OpenDoor(participant2), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point2), openTheDoor(this.point2, participant2)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant2)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point3, participant2), this.OpenDoor(participant2), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point3), openTheDoor(this.point3, participant2)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant2)
-//        )
-
-//    ),
-//new SequenceShuffle(
-//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point1, participant3), this.OpenDoor(participant3), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point1), openTheDoor(this.point1,participant3)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant3)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point2, participant3), this.OpenDoor(participant3), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point2), openTheDoor(this.point2,participant3)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant3)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point3, participant3), this.OpenDoor(participant3), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point3), openTheDoor(this.point3,participant3)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant3)
-//        )
-
-//    ),
-//new SequenceShuffle(
-//    //new Sequence(this.PickUp(participant), ChaChaRealSmooth(participant, 3), this.PutDown(participant)))
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point1, participant4), this.OpenDoor(participant4), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point1), openTheDoor(this.point1, participant4)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant4)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point2, participant4), this.OpenDoor(participant4), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point2), openTheDoor(this.point2, participant4)
-//            ),
-//        this.ST_ApproachAndWait(this.point10, participant4)
-//        ),
-//    new Sequence(
-//        this.ST_ApproachAndWait(this.point3,participant4), this.OpenDoor(participant4), new LeafWait(1000),
-//        new Selector(
-//            doorOpen(this.point3), openTheDoor(this.point3, participant4)
-//            ),
-//        this.ST_ApproachAndWait(this.point10,participant4)
-//        )
-//    )
-
-);
+), this.WinnerCheck(), new Selector(Check(), Cheer2(winner, winner2)), new Selector(Check2(), Cheer(winner)), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; }));
         return story;
     }
+    public Node Check2()
+    {
+        return new LeafInvoke(() =>
+        {
+            int score1 = count1;
+            int score2 = count2;
+            int score3 = count3;
 
+            if (score1 > score2 && score1 > score3)
+            {
+                winText.text = "Daniel1 won!";
+                winner = participant;
+                return RunStatus.Failure;
+            }
+            if (score2 > score1 && score2 > score3)
+            {
+                winText.text = "Daniel2 won!";
+                winner = participant2;
+                return RunStatus.Failure;
+            }
+            if (score3 > score1 && score3 > score2)
+            {
+                winText.text = "Daniel3 won!";
+                winner = participant3;
+                return RunStatus.Failure;
+            }
+            //if (score1 == score2)
+            //{
+            //    //winText.text = "Daniel1 and Daniel2 won!";
+            //    //winner = participant;
+            //    //winner2 = participant2;
+
+            //}
+            //if (score1 == score3)
+            //{
+            //    //winText.text = "Daniel1 and Daniel3 won!";
+            //    //winner = participant;
+            //    //winner2 = participant2;
+
+            //}
+            //if (score2 == score3)
+            //{
+            //    //winText.text = "Daniel2 and Daniel3 won!";
+            //    //winner = participant;
+            //    //winner2 = participant2;
+
+            //}
+
+            return RunStatus.Success;
+        });
+    }
+    public Node Check()
+    {
+        return new LeafInvoke(() =>
+        {
+            int score1 = count1;
+            int score2 = count2;
+            int score3 = count3;
+
+            //if (score1 > score2 && score1 > score3)
+            //{
+            //    //winText.text = "Daniel1 won!";
+            //    winner = participant;
+            //}
+            //if (score2 > score1 && score2 > score3)
+            //{
+            //    //winText.text = "Daniel2 won!";
+            //    winner = participant2;
+            //}
+            //if (score3 > score1 && score3 > score2)
+            //{
+            //    //winText.text = "Daniel3 won!";
+            //    winner = participant3;
+            //}
+            if (score1 == score2)
+            {
+                winText.text = "Daniel1 and Daniel2 won!";
+                winner = participant;
+                winner2 = participant2;
+                return RunStatus.Failure;
+            }
+            if (score1 == score3)
+            {
+                winText.text = "Daniel1 and Daniel3 won!";
+                winner = participant;
+                winner2 = participant2;
+                return RunStatus.Failure;
+            }
+            if (score2 == score3)
+            {
+                winText.text = "Daniel2 and Daniel3 won!";
+                winner = participant;
+                winner2 = participant2;
+                return RunStatus.Failure;
+            }
+
+            return RunStatus.Success;
+        });
+    }
     //protected Node BuildTreeRoot()
     //{
     //    Node roaming = 

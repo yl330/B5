@@ -1,25 +1,17 @@
 ﻿<Properties StartupConfiguration="{47CB1DF7-4BE4-CF5A-67FF-38419F32FD4A}|">
-  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/IKBT.cs">
+  <MonoDevelop.Ide.Workbench ActiveDocument="Assets/Core/Scripts/Steering/UnitySteeringController.cs">
     <Files>
-      <File FileName="Assets/IKBT.cs" Line="505" Column="1" IsPinned="True" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SelectorShuffle.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/NodeGroupWeighted.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/ForEach.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceAll.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/Node.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/BehaviorUpdater.cs" />
-      <File FileName="Assets/Scripts/IKBT2.cs" />
-      <File FileName="Assets/Core/Scripts/Character/CharacterMecanim.cs" />
-      <File FileName="Assets/Core/Scripts/Character/BehaviorMecanim.cs" />
-      <File FileName="Assets/Core/Scripts/Character/BodyMecanim.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceParallel.cs" />
-      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Sequence.cs" />
-      <File FileName="Assets/MyBehaviorTree2.cs" />
-      <File FileName="Assets/Core/Scripts/IK/IKController.cs" Line="1" Column="1" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/SequenceShuffle.cs" />
+      <File FileName="Assets/Core/Scripts/Controllers/_NavigatorScript.cs" />
+      <File FileName="Assets/Core/Scripts/Behavior/TreeSharpPlus/Primitive/Node.cs" Line="178" Column="1" />
+      <File FileName="Assets/IKBT.cs" Line="698" Column="2" />
+      <File FileName="Assets/Scripts/VirusScript.cs" Line="19" Column="28" />
+      <File FileName="Assets/Core/Scripts/Steering/UnitySteeringController.cs" Line="1" Column="1" />
     </Files>
   </MonoDevelop.Ide.Workbench>
   <MonoDevelop.Ide.DebuggingService.PinnedWatches />
   <MonoDevelop.Ide.Workspace ActiveConfiguration="Debug" />
+  <MonoDevelop.Ide.ItemProperties.Assembly-CSharp PreferredExecutionTarget="1274cbb6-f2c5-4d1c-ab50-94824aa08ef2" />
   <MonoDevelop.Ide.DebuggingService.Breakpoints>
     <BreakpointStore />
   </MonoDevelop.Ide.DebuggingService.Breakpoints>

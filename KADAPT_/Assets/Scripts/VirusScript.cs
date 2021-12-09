@@ -5,6 +5,7 @@ using UnityEngine;
 public class VirusScript : MonoBehaviour
 {
     public float gravity = 0.1f;
+    private SphereCollider gm;
 
     private Rigidbody rb;
     private bool settled = false;
@@ -14,6 +15,8 @@ public class VirusScript : MonoBehaviour
     public void Start()
     {
         rb = GetComponent<Rigidbody>();
+        gm = GetComponent<SphereCollider>();
+        gm.enabled = false;
     }
 
     public void FixedUpdate()
