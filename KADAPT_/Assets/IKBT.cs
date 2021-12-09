@@ -349,57 +349,7 @@ public class IKBT : MonoBehaviour
 
     }
 
-    public Node WinnerCheck()
-    {
-        return new LeafInvoke(() =>
-        {
-            int score1 = count1;
-            int score2 = count2;
-            int score3 = count3;
-
-            if (score1 > score2 && score1 > score3)
-            {
-                winText.text = "Daniel1 won!";
-                winner = participant;
-                Cheer(winner);
-            }
-            if (score2 > score1 && score2 > score3)
-            {
-                winText.text = "Daniel2 won!";
-                winner = participant2;
-                Cheer(winner);
-            }
-            if (score3 > score1 && score3 > score2)
-            {
-                winText.text = "Daniel3 won!";
-                winner = participant3;
-                Cheer(winner);
-            }
-            if (score1 == score2)
-            {
-                winText.text = "Daniel1 and Daniel2 won!";
-                winner = participant;
-                winner2 = participant2;
-                Cheer2(winner, winner2);
-
-            }
-            if (score1 == score3)
-            {
-                winText.text = "Daniel1 and Daniel3 won!";
-                winner = participant;
-                winner2 = participant2;
-                Cheer2(winner, winner2);
-            }
-            if (score2 == score3)
-            {
-                winText.text = "Daniel2 and Daniel3 won!";
-                winner = participant;
-                winner2 = participant2;
-                Cheer2(winner, winner2);
-            }
-            return RunStatus.Success;
-        });
-    }
+    
     public Node userInteract()
     {
         return new LeafInvoke(() =>
@@ -434,7 +384,7 @@ public class IKBT : MonoBehaviour
         });
     }
 
-    private Node Cheer(GameObject winner)
+    private Node Cheer()
     {
         return new Sequence(
 
@@ -445,14 +395,14 @@ public class IKBT : MonoBehaviour
          );
     }
 
-    private Node Cheer2(GameObject winner1, GameObject winner2)
+    private Node Cheer2()
     {
         
         return new Sequence(
-            winner1.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
+            winner.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
             winner2.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", true),
             new LeafWait(10000),
-            winner1.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
+            winner.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
             winner2.GetComponent<BehaviorMecanim>().Node_HandAnimation("CHEER", false),
             new LeafInvoke(() => { return RunStatus.Success; })
          );
@@ -462,8 +412,8 @@ public class IKBT : MonoBehaviour
     {
         return new LeafInvoke(() =>
         {
-            g.GetComponent<UnitySteeringController>().maxSpeed = 6f;
-            return RunStatus.Success;
+            g.GetComponent<UnitySteeringController>().maxSpeed = 8f;
+            return RunStatus.Failure;
         });
     }
     protected Node BuildTreeRoot()
@@ -471,7 +421,7 @@ public class IKBT : MonoBehaviour
         Node story = new Sequence(
                     new SequenceAll(
                         //ST_Approach(new Vector3(21.7f, 0.15f, 22.612f), participant),
-                        new SequenceParallel(
+                        new SequenceAll(
                         new Sequence(
                         new SequenceShuffle(
 
@@ -552,7 +502,7 @@ public class IKBT : MonoBehaviour
                             ), ST_Approach(new Vector3(39f, 0f, -12f), participant)
                             ), new DecoratorLoop(new Selector(this.userInteract(), Faster(participant)))
                         ),
-new SequenceParallel(
+new SequenceAll(
                         new Sequence(
                         new SequenceShuffle(
 
@@ -633,7 +583,7 @@ new SequenceParallel(
                             ), ST_Approach(new Vector3(39f, 0f, -12f), participant2)
                             ), new DecoratorLoop(new Selector(this.userInteract2(), Faster(participant2)))
                         ),
-new SequenceParallel(
+new SequenceAll(
                         new Sequence(
                         new SequenceShuffle(
 
@@ -714,7 +664,7 @@ new SequenceParallel(
                             ), ST_Approach(new Vector3(39f, 0f, -12f), participant3)
                             ), new DecoratorLoop(new Selector(this.userInteract3(), Faster(participant3)))
                         )
-), this.WinnerCheck(), new Selector(Check(), Cheer2(winner, winner2)), new Selector(Check2(), Cheer(winner)), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; }));
+),  new Selector(Check(), Cheer2()), new Selector(Check2(), Cheer()), new DecoratorLoop(new LeafWait(1000)), new LeafInvoke(() => { return RunStatus.Running; }));
         return story;
     }
     public Node Check2()
